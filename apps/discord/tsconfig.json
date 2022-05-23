@@ -1,0 +1,4 @@
+{
+  "extends": "@sl/config/tsconfig.base.json",
+  "include": ["src", "README.md"],
+}
