@@ -6,9 +6,11 @@ dotenv.config({ path: `.env.${ENVIRONMENT}` });
 
 // Configuration Objects
 import discordConfig from './discord.config';
+import solanaConfig from './solana.config';
 
 export const config = {
-    discord: discordConfig,
+  discord: discordConfig,
+  sol: solanaConfig,
 };
 
 console.log(`Loaded Environment Variables from '.env.${ENVIRONMENT}'`, config);

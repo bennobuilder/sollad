@@ -19,5 +19,7 @@ module.exports = {
     '@typescript-eslint/lines-between-class-members': OFF,
     '@typescript-eslint/naming-convention': WARNING,
     '@typescript-eslint/no-unused-vars': WARNING,
+    '@typescript-eslint/ban-ts-comment': WARNING,
+    '@typescript-eslint/no-var-requires': WARNING,
   },
 };
