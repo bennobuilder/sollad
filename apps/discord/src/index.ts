@@ -3,6 +3,7 @@ import WOKCommands from 'wokcommands';
 import path from 'path';
 import config from './config';
 import * as fs from 'fs';
+import { DcClientHandler } from './core/discord';
 
 const eventsDir = path.join(__dirname, 'events');
 const commandsDir = path.join(__dirname, 'commands');
@@ -11,11 +12,15 @@ const commandsDir = path.join(__dirname, 'commands');
 const dcClient = new Client({
   intents: [
     // https://discord.com/developers/docs/topics/gateway#list-of-intents
+    // What accesses the bot needs
     Intents.FLAGS.GUILDS,
     Intents.FLAGS.GUILD_MESSAGES,
     Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
   ],
 });
+
+// TODO build custom command/event handler that isn't overloaded with MongoDB and stuff
+// new DcClientHandler(dcClient, {});
 
 // Register Events
 fs.readdir(eventsDir, (err, files) => {

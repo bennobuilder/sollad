@@ -1,4 +1,4 @@
-export type CollectionResponse = {
+export type Collection = {
   symbol: string;
   name: string;
   description: string;
@@ -8,4 +8,14 @@ export type CollectionResponse = {
   size: number;
   launchDatetime?: string;
   edition?: string;
+};
+
+export type CollectionListItem = {
+  pdaAddress: string;
+  auctionHouse: string;
+  tokenAddress: string;
+  tokenMint: string;
+  seller: string;
+  tokenSize: number;
+  price: number;
 };

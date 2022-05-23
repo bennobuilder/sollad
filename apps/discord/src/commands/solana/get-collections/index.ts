@@ -4,10 +4,10 @@ import { magiceden } from '../../../core';
 import { Pagination, PaginationType } from '@discordx/pagination';
 
 export default {
-  name: 'get_collections',
+  name: 'getCollections',
 
   category: 'solana',
-  description: 'Get details of Magic Eden Launchpad Collections.',
+  description: 'Get details of Magic Eden Collections.',
   options: [
     {
       name: 'limit',
@@ -27,22 +27,25 @@ export default {
   testOnly: false,
 
   callback: async ({ message, interaction }) => {
-    const limit = interaction.options.getNumber('limit') || 20;
+    const limit = interaction.options.getNumber('limit') || 50;
     const offset = interaction.options.getNumber('offset') || 0;
 
+    // Show loading indicator
     await interaction.deferReply();
 
-    const cols = await magiceden.api.getCollections(offset, limit);
-    if (cols == null) return;
+    // Fetch Collections
+    const collections = await magiceden.api.getCollections(true, offset, limit);
+    if (collections == null) return;
 
     try {
-      const pages = cols.map((col, i) => {
+      // Build pages for pagination
+      const pages = collections.map((col, i) => {
         return new MessageEmbed()
           .setFooter({
             text: `Collection ${i + 1} of ${
               offset == 0
-                ? cols.length
-                : `${offset - 1}-${offset + cols.length}`
+                ? collections.length
+                : `${offset - 1}-${offset + collections.length}`
             }`,
           })
           .setTitle('**Collections**')
@@ -54,6 +57,8 @@ export default {
           .addField('Launch Date', col.launchDatetime || '-')
           .setImage(col.image);
       });
+
+      // Create pagination
       const pagination = new Pagination(interaction, pages, {
         type: limit > 10 ? PaginationType.SelectMenu : PaginationType.Button,
         showStartEnd: true,
