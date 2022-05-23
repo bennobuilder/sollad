@@ -11,8 +11,8 @@
     "@sl/config": "*",
     "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.11",
-    "eslint": "^7.32.0",
-    "eslint-config-custom": "*",
+    "eslint": "8.16.0",
+    "eslint-config-sl": "*",
     "react": "^17.0.2",
     "typescript": "^4.5.2"
   }

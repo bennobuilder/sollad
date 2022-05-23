@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@sl/config": "*",
-    "eslint": "7.32.0",
+    "eslint": "8.16.0",
     "eslint-config-sl": "*",
     "eslint-plugin-react": "7.28.0",
     "eslint-config-next": "^12.0.8",
