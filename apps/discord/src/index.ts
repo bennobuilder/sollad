@@ -9,7 +9,7 @@ const eventsDir = path.join(__dirname, 'events');
 const commandsDir = path.join(__dirname, 'commands');
 
 // Create Discord Client
-const dcClient = new Client({
+export const dcClient = new Client({
   intents: [
     // https://discord.com/developers/docs/topics/gateway#list-of-intents
     // What accesses the bot needs

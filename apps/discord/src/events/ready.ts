@@ -1,8 +1,12 @@
 import { Client } from 'discord.js';
+import { listingWorkerThread } from '../core/worker';
 
 export default {
   callback: (client: Client) => {
-    console.log('Discord Bot is ready');
+    // Set Activity
     client.user?.setActivity('Jeff', { type: 'WATCHING' });
+
+    // Start workers
+    listingWorkerThread.start();
   },
 };
