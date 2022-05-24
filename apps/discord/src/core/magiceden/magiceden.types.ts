@@ -1,3 +1,5 @@
+import { NFTData } from '../solana/fetchNFTData';
+
 export type Collection = {
   symbol: string;
   name: string;
@@ -18,4 +20,5 @@ export type CollectionListItem = {
   seller: string;
   tokenSize: number;
   price: number;
+  nftData: NFTData | null;
 };

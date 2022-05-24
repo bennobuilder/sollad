@@ -1,18 +1,35 @@
 import { Worker } from '../../../core/worker';
 import { magiceden } from '../../../core';
 import {
+  ButtonInteraction,
   Client,
+  Message,
   MessageActionRow,
   MessageEmbed,
   TextChannel,
 } from 'discord.js';
-import { fetchNFTData } from '../../../core/solana/fetchNFTData';
-import { newConnection } from '../../../core/solana/connection';
 import { truncate } from '../../../core/utils/truncate';
+import * as crypto from 'crypto';
+import { CollectionListItem } from '../../../core/magiceden/magiceden.types';
 
 export default class ListingWorker extends Worker {
-  public symbol: string;
-  public client: Client;
+  private readonly symbol: string;
+  private readonly client: Client;
+  private channels = ['978366113375195136'];
+
+  static BUY_BTN_ID = 'buy_listing';
+
+  // Track messages to interact on btn clicks
+  private messageLimit = 50;
+  private messages: {
+    [key: string]: { listing: CollectionListItem };
+  } = {};
+  private messageIds: string[] = [];
+
+  // Track listings sent in channel to avoid sending the same listing twice
+  // as currently the logic is based on pulling
+  private listingLimit = 50;
+  private notifiedListings: string[] = [];
 
   constructor(symbol: string, client: Client) {
     super(`listing_${symbol}`);
@@ -28,65 +45,143 @@ export default class ListingWorker extends Worker {
       20,
     );
 
-    console.log('Run Listing Worker', {
-      fetchedCount: collectionListings.length,
-    });
+    for (const channelId of this.channels) {
+      // Get channel to send the listings in
+      const channel = (await this.client.channels.fetch(
+        channelId,
+      )) as TextChannel;
 
-    // Get channel to send the listings in
-    const channel = (await this.client.channels.fetch(
-      '978366113375195136', // TODO
-    )) as TextChannel;
+      for (const listing of collectionListings) {
+        const listingHash = crypto
+          .createHash('md5')
+          .update(
+            JSON.stringify({
+              channelId,
+              nft: `${listing.tokenMint}_${listing.price}`,
+            }),
+          )
+          .digest('hex');
 
-    for (const listing of collectionListings) {
-      const conn = newConnection();
-      const nftData = await fetchNFTData(conn, listing.tokenMint);
+        // Check whether listing was already notified in the channel
+        if (this.notifiedListings.includes(listingHash)) continue;
 
-      const actionRowMessage = new MessageActionRow({
-        type: 1,
-        components: [
-          {
-            style: 5,
-            label: `View`,
-            url: `https://magiceden.io/item-details/${listing.tokenMint}`,
-            disabled: false,
-            type: 2,
+        // Build interaction buttons
+        const actionRowMessage = new MessageActionRow({
+          type: 1,
+          components: [
+            {
+              custom_id: ListingWorker.BUY_BTN_ID,
+              style: 'SECONDARY',
+              label: `Buy`,
+              disabled: false,
+              type: 2,
+            },
+            {
+              style: 'LINK',
+              label: `View`,
+              url: `https://magiceden.io/item-details/${listing.tokenMint}`,
+              disabled: false,
+              type: 2,
+            },
+          ],
+        });
+
+        // Build message
+        const embedMessage = new MessageEmbed({
+          color: '#000000',
+          author: {
+            name: truncate(listing.seller),
+            iconURL: 'https://matrica.io/profile.png',
+            url: `https://matrica.io/wallet/${listing.seller}`,
           },
-          {
-            style: 5,
-            label: `Buy`,
-            url: `https://solscan.io/token/`,
-            disabled: false,
-            type: 2,
+          footer: {
+            text: `Listed on Magic Eden`,
+            iconURL: 'https://www.magiceden.io/img/favicon.png',
           },
-        ],
-      });
+          title: `**Listings of ${listing.nftData?.name} (${this.symbol})**`,
+          url: `https://magiceden.io/item-details/${listing.tokenMint}`,
+          fields: [
+            {
+              name: 'Price',
+              value: listing.price.toString() + ' SOL',
+              inline: false,
+            },
+            {
+              name: 'Mint Address',
+              value: listing.tokenMint || 'unknown',
+              inline: false,
+            },
+            {
+              name: 'Auction House Address',
+              value: listing.auctionHouse || 'unknown',
+              inline: false,
+            },
+          ],
+        });
 
-      const embedMessage = new MessageEmbed()
-        .setAuthor(
-          truncate(listing.seller),
-          'https://matrica.io/profile.png',
-          `https://matrica.io/wallet/${listing.seller}`,
-        )
-        .setFooter({
-          text: `Listed on Magic Eden`,
-          iconURL: 'https://www.magiceden.io/img/favicon.png',
-        })
-        .setTitle(`**Listings of ${nftData?.name} (${this.symbol})**`)
-        .setURL(`https://magiceden.io/item-details/${listing.tokenMint}`)
-        .addField('Price', listing.price.toString() + ' SOL', false)
-        .addField('Mint Address', listing.tokenMint, false) // Get more info about the nft via "/tokens/:token_mint"
-        .addField('Auction House Address', listing.auctionHouse, false)
-        .setColor('#000000');
+        // Set nft image
+        if (listing.nftData != null) {
+          embedMessage.setImage(listing.nftData.image);
+        }
 
-      if (nftData != null) {
-        embedMessage.setImage(nftData.image);
+        // Send and track listing and listing message
+        const message = await channel.send({
+          components: [actionRowMessage as any],
+          embeds: [embedMessage],
+        });
+        this.trackMessage(message.id, listing);
+        this.trackListingInChannel(listingHash);
       }
 
-      console.log('Send');
-      await channel.send({
-        components: [actionRowMessage as any],
-        embeds: [embedMessage],
+      // Listen to button presses in the channel
+      const time = 1000 * 60 * 1; // 1 min
+      const collector = channel.createMessageComponentCollector({ time });
+      collector.on('collect', (btnInt: ButtonInteraction) => {
+        if (btnInt.customId === ListingWorker.BUY_BTN_ID) {
+          const messageId = btnInt.message.id;
+          const data = this.messages[messageId];
+          console.log('On Collect', { messageId, data });
+
+          if (data != null) {
+            this.untrackMessage(messageId);
+
+            btnInt.deferUpdate();
+
+            btnInt.reply({
+              content: `You just bought ${data.listing.nftData?.name}`,
+              ephemeral: true,
+            });
+
+            // TODO buy nft
+          }
+        }
       });
+    }
+  }
+
+  private untrackMessage(messageId: string) {
+    const messageIdIndex = this.messageIds.indexOf(messageId);
+    if (messageIdIndex > -1) this.messageIds.splice(messageIdIndex, 1);
+    delete this.messages[messageId];
+  }
+
+  private trackMessage(messageId: string, listing: CollectionListItem) {
+    // Add newly tracked message
+    this.messages[messageId] = { listing };
+    this.messageIds.push(messageId);
+
+    // Remove the oldest message, so the messages won't stack up endless
+    if (this.messageIds.length > this.messageLimit) {
+      const toRemoveMessageId = this.messageIds.pop();
+      delete this.messages[toRemoveMessageId!];
+    }
+  }
+
+  private trackListingInChannel(listingHash: string) {
+    this.notifiedListings.push(listingHash);
+
+    if (this.notifiedListings.length > this.listingLimit) {
+      this.notifiedListings.pop();
     }
   }
 }

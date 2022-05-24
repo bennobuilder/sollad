@@ -1,6 +1,8 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Collection, CollectionListItem } from './magiceden.types';
 import solanaConfig from '../../config/solana.config';
+import { newConnection } from '../solana/connection';
+import { fetchNFTData } from '../solana/fetchNFTData';
 
 export class MagicEdenApi {
   private authKey?: string;
@@ -45,6 +47,15 @@ export class MagicEdenApi {
   ): Promise<CollectionListItem[]> {
     const url = `${solanaConfig.magiceden.baseUrl}/collections/${symbol}/listings?offset=${offset}&limit=${limit}`;
     const response = await this.fetch<CollectionListItem[]>(url);
-    return response.data ?? null;
+    const data = response.data ?? null;
+    if (data == null) return data;
+
+    // Fetch more detailed extra NFT Data
+    for (const item of data) {
+      const conn = newConnection();
+      item.nftData = await fetchNFTData(conn, item.tokenMint);
+    }
+
+    return data;
   }
 }

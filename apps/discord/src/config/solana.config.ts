@@ -9,6 +9,9 @@ const meUrls = {
 export default {
   isDev,
   network: isDev ? 'devnet' : 'mainnet-beta',
+  wallet: {
+    secretKey: process.env.SOL_SECRET_KEY,
+  },
   magiceden: {
     urls: meUrls,
     baseUrl: isDev ? meUrls.devBaseUrl : meUrls.prodBaseUrl,
@@ -19,6 +22,9 @@ export default {
 type SolConfigType = {
   isDev: boolean;
   network: Cluster;
+  wallet: {
+    secretKey: string;
+  };
   magiceden: {
     urls: {
       prodBaseUrl: string;
