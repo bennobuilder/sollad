@@ -1,4 +1,4 @@
-import { Worker } from '../../../core/worker';
+import { listingWorkerThread, Worker } from '../../../core/worker';
 import { magiceden } from '../../../core';
 import {
   ButtonInteraction,
@@ -38,11 +38,13 @@ export default class ListingWorker extends Worker {
   }
 
   public async run(): Promise<void> {
+    this.isRunning = true;
+
     // Fetch listings
     const collectionListings = await magiceden.api.getCollectionListings(
       this.symbol,
       0,
-      5,
+      20,
     );
 
     for (const channelId of this.channels) {
@@ -50,6 +52,9 @@ export default class ListingWorker extends Worker {
       const channel = (await this.client.channels.fetch(
         channelId,
       )) as TextChannel;
+
+      // Start listening on channel events
+      this.listenOnChannelComponentEvents(channel);
 
       for (const listing of collectionListings) {
         const listingHash = crypto
@@ -132,39 +137,9 @@ export default class ListingWorker extends Worker {
         this.trackMessage(message.id, listing);
         this.trackListingInChannel(listingHash);
       }
-
-      // Listen to button presses in the channel
-      const time = 1000 * 60 * 1; // 1 min
-      const collector = channel.createMessageComponentCollector({ time });
-      collector.on('collect', (btnInt: ButtonInteraction) => {
-        if (btnInt.customId === ListingWorker.BUY_BTN_ID) {
-          const messageId = btnInt.message.id;
-          const data = this.messages[messageId];
-
-          if (data != null) {
-            this.untrackMessage(messageId);
-
-            // btnInt.deferUpdate();
-
-            btnInt.reply({
-              content: `${btnInt.user} just bought ${data.listing.nftData?.name}`,
-            });
-
-            buyNFT(
-              data.listing.auctionHouse,
-              data.listing.tokenMint,
-              data.listing.price,
-            );
-          }
-        }
-      });
     }
-  }
 
-  private untrackMessage(messageId: string) {
-    const messageIdIndex = this.messageIds.indexOf(messageId);
-    if (messageIdIndex > -1) this.messageIds.splice(messageIdIndex, 1);
-    delete this.messages[messageId];
+    this.isRunning = false;
   }
 
   private trackMessage(messageId: string, listing: CollectionListItem) {
@@ -179,11 +154,49 @@ export default class ListingWorker extends Worker {
     }
   }
 
+  private untrackMessage(messageId: string) {
+    const messageIdIndex = this.messageIds.indexOf(messageId);
+    if (messageIdIndex > -1) this.messageIds.splice(messageIdIndex, 1);
+    delete this.messages[messageId];
+  }
+
   private trackListingInChannel(listingHash: string) {
     this.notifiedListings.push(listingHash);
 
     if (this.notifiedListings.length > this.listingLimit) {
       this.notifiedListings.pop();
     }
+  }
+
+  private listenOnChannelComponentEvents(channel: TextChannel) {
+    // Listen to button presses in the channel
+    const collector = channel.createMessageComponentCollector({
+      // Listen until the next run event hits (to avoid multiple collector listener)
+      time: listingWorkerThread.config.interval,
+    });
+
+    collector.on('collect', async (btnInt: ButtonInteraction) => {
+      console.log('COLLECT ', btnInt.customId); // TODO REMOVE
+      if (btnInt.customId === ListingWorker.BUY_BTN_ID) {
+        const messageId = btnInt.message.id;
+        const data = this.messages[messageId];
+
+        if (data != null) {
+          this.untrackMessage(messageId);
+
+          await buyNFT({
+            auctionHouseAddress: data.listing.auctionHouse,
+            tokenMint: data.listing.tokenMint,
+            tokenATA: data.listing.tokenAddress,
+            price: data.listing.price,
+            seller: data.listing.seller,
+          });
+
+          btnInt.reply({
+            content: `${btnInt.user} just bought ${data.listing.nftData?.name}`,
+          });
+        }
+      }
+    });
   }
 }

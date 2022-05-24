@@ -2,7 +2,7 @@ import Worker from './Worker';
 import { sleep } from '../utils/sleep';
 
 export default class WorkerThread {
-  private readonly config: Required<WorkerHandlerConfig>;
+  public readonly config: Required<WorkerHandlerConfig>;
 
   private workers: Map<string, Worker> = new Map();
   private interval: NodeJS.Timer | null = null;
@@ -68,9 +68,9 @@ export default class WorkerThread {
         await sleep(delayInMs());
       }
 
-      // Run worker
+      // Run worker if it's not running to avoid overlaps
       try {
-        return await worker.run();
+        return worker.isRunning ? Promise.resolve() : await worker.run();
       } catch (e) {
         console.warn(e);
       }

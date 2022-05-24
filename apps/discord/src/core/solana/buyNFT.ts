@@ -7,11 +7,15 @@ import solanaConfig from '../../config/solana.config';
 import { toUTF8Array } from '../utils/toUTF8Array';
 import bs58 from 'bs58';
 
-export async function buyNFT(
-  auctionHouseAddress: string,
-  tokenMint: string,
-  price: number,
-) {
+export async function buyNFT(config: {
+  auctionHouseAddress: string;
+  tokenMint: string;
+  tokenATA: string;
+  seller: string;
+  price: number;
+}) {
+  const { auctionHouseAddress, tokenMint, tokenATA, seller, price } = config;
+
   // Connect to cluster
   const conn = newConnection();
 
@@ -38,26 +42,43 @@ export async function buyNFT(
 
   // Get buy instruction
   const response = await axios.get(
-    `${config.sol.magiceden.baseUrl}/instructions/buy_now`,
+    `${solanaConfig.magiceden.baseUrl}/instructions/buy_now`,
     {
       params: {
         buyer: wallet.publicKey.toBase58(),
+        seller,
         auctionHouseAddress,
         tokenMint,
+        tokenATA,
         price,
+        // sellerReferral: 'todo',
+        // sellerExpiry: -1,
       },
       headers: {
-        Authorization: `Bearer ${'todo'}`,
+        // Authorization: `Bearer ${'eyJsYXN0QWN0aXZlIjoxNjUzNDAwNzk3NDI2LCJzZXNzaW9uSWQiOiJyd053dDhBYWxrZHZoY3VuT3F0N3YifQ==.609c31f22c3c75d3a212d99c230b01fc25f16c8b3ce493e61c16232148ccdd6e'}`,
+
+        // Replicate headers of client in browser, until I get a proper authoriziation token
+        origin: 'https://magiceden.io',
+        referer: 'https://magiceden.io/',
+        ['sec-fetch-dest']: 'empty',
+        ['sec-fetch-mode']: 'cors',
+        ['sec-fetch-site']: 'same-site',
+        ['sec-gpc']: 1,
+        ['user-agent']:
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36',
       },
     },
   );
 
   const tx = response.data.tx;
-  const signature = provider.sendAndConfirm(
-    anchor.web3.Transaction.populate(
-      anchor.web3.Message.from(Buffer.from(tx.data)),
-    ),
-  );
+  if (tx != null) {
+    console.log('TX', { tx });
+    const signature = provider.sendAndConfirm(
+      anchor.web3.Transaction.populate(
+        anchor.web3.Message.from(Buffer.from(tx.data)),
+      ),
+    );
 
-  console.log(signature);
+    console.log(signature);
+  }
 }
