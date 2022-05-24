@@ -38,4 +38,5 @@ which creators are getting the majority of the royalties.
 - https://github.com/YogPanjarale/solana-bot/
 - https://github.com/Turk-Mumtaz/nft-sales-bot/
 - https://github.com/milktoastlab/SolanaNFTBot
+- https://github.com/solana-labs/solana/blob/master/docs/src/developing/clients/javascript-reference.md
 

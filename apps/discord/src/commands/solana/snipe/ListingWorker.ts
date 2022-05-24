@@ -3,7 +3,6 @@ import { magiceden } from '../../../core';
 import {
   ButtonInteraction,
   Client,
-  Message,
   MessageActionRow,
   MessageEmbed,
   TextChannel,
@@ -11,6 +10,7 @@ import {
 import { truncate } from '../../../core/utils/truncate';
 import * as crypto from 'crypto';
 import { CollectionListItem } from '../../../core/magiceden/magiceden.types';
+import { buyNFT } from '../../../core/solana/buyNFT';
 
 export default class ListingWorker extends Worker {
   private readonly symbol: string;
@@ -42,7 +42,7 @@ export default class ListingWorker extends Worker {
     const collectionListings = await magiceden.api.getCollectionListings(
       this.symbol,
       0,
-      20,
+      5,
     );
 
     for (const channelId of this.channels) {
@@ -140,19 +140,21 @@ export default class ListingWorker extends Worker {
         if (btnInt.customId === ListingWorker.BUY_BTN_ID) {
           const messageId = btnInt.message.id;
           const data = this.messages[messageId];
-          console.log('On Collect', { messageId, data });
 
           if (data != null) {
             this.untrackMessage(messageId);
 
-            btnInt.deferUpdate();
+            // btnInt.deferUpdate();
 
             btnInt.reply({
-              content: `You just bought ${data.listing.nftData?.name}`,
-              ephemeral: true,
+              content: `${btnInt.user} just bought ${data.listing.nftData?.name}`,
             });
 
-            // TODO buy nft
+            buyNFT(
+              data.listing.auctionHouse,
+              data.listing.tokenMint,
+              data.listing.price,
+            );
           }
         }
       });
