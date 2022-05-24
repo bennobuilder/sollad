@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Collection, CollectionListItem } from './magiceden.types';
+import solanaConfig from '../../config/solana.config';
 
 export class MagicEdenApi {
   private authKey?: string;
@@ -30,19 +31,19 @@ export class MagicEdenApi {
     offset = 0,
     limit = 10,
   ): Promise<Collection[] | null> {
-    const url = `https://api-mainnet.magiceden.dev/v2/${
+    const url = `${solanaConfig.magiceden.baseUrl}/${
       launchpad ? 'launchpad/' : ''
     }collections?offset=${offset}&limit=${limit}`;
     const response = await this.fetch<Collection[]>(url);
     return response.data ?? null;
   }
 
-  public async getCollectionList(
+  public async getCollectionListings(
     symbol: string,
     offset = 0,
     limit = 10,
   ): Promise<CollectionListItem[]> {
-    const url = `https://api-mainnet.magiceden.dev/v2/collections/${symbol}/listings?offset=${offset}&limit=${limit}`;
+    const url = `${solanaConfig.magiceden.baseUrl}/collections/${symbol}/listings?offset=${offset}&limit=${limit}`;
     const response = await this.fetch<CollectionListItem[]>(url);
     return response.data ?? null;
   }

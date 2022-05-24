@@ -41,7 +41,7 @@ export default {
     await interaction.deferReply();
 
     // Fetch Collections
-    const collectionListings = await magiceden.api.getCollectionList(
+    const collectionListings = await magiceden.api.getCollectionListings(
       symbol,
       offset,
       limit,

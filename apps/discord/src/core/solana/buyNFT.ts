@@ -1,11 +1,12 @@
-import web3 from '@solana/web3.js';
-import config from '../../../config';
+import * as web3 from '@solana/web3.js';
+import config from '../../config';
 import * as anchor from '@project-serum/anchor';
 import axios from 'axios';
+import { newConnection } from './connection';
 
-export async function buy() {
-  // Connect to cluster (devnet)
-  const conn = new web3.Connection(web3.clusterApiUrl(config.sol.network));
+export async function buyNFT() {
+  // Connect to cluster
+  const conn = newConnection();
 
   // Create User wallet keypair (dev wallet)
   const userWalletKeypair = web3.Keypair.generate();

@@ -9,8 +9,8 @@ export default class WorkerThread {
 
   constructor(workers: Worker[], config: WorkerHandlerConfig = {}) {
     this.config = {
-      delayInMs: () => Math.random() * 2000,
-      interval: 1000 * 5, // 30s
+      delayInMs: () => Math.random() * 2000, // 1-2s
+      interval: 1000 * 30, // 30s
       ...config,
     };
 
@@ -83,12 +83,12 @@ export default class WorkerThread {
 type WorkerHandlerConfig = {
   /**
    * Delay between the single workers to avoid running them all at once.
-   * @default () => Math.random() * 2000
+   * @default () => Math.random() * 2000 // 1-2s
    */
   delayInMs?: () => number;
   /**
    * Interval between running the worker thread. (ms)
-   * @default 2000
+   * @default 30s
    */
   interval?: number;
 };

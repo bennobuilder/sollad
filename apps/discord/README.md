@@ -4,6 +4,7 @@ Just another Discord Bot.
 ## 💡 Resources
 - https://discord.js.org/#/
 - https://api.magiceden.dev/
+- https://docs.metaplex.com/
 
 ---
 
@@ -33,8 +34,8 @@ which creators are getting the majority of the royalties.
 
 ## 💡 Inspiration
 
-- https://github.com/Turk-Mumtaz/nft-sales-bot/blob/main/sales_bot.js
 - https://github.com/SolanaNFTCollector/Solana-Minting-Bot
 - https://github.com/YogPanjarale/solana-bot/
-- https://github.com/Turk-Mumtaz/nft-sales-bot/blob/main/sales_bot.js
+- https://github.com/Turk-Mumtaz/nft-sales-bot/
+- https://github.com/milktoastlab/SolanaNFTBot
 
