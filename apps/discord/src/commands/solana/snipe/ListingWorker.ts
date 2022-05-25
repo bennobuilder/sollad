@@ -2,8 +2,11 @@ import { listingWorkerThread, Worker } from '../../../core/worker';
 import { magiceden } from '../../../core';
 import {
   ButtonInteraction,
+  CacheType,
   Client,
+  InteractionCollector,
   MessageActionRow,
+  MessageComponentInteraction,
   MessageEmbed,
   TextChannel,
 } from 'discord.js';
@@ -31,6 +34,14 @@ export default class ListingWorker extends Worker {
   private listingLimit = 50;
   private notifiedListings: string[] = [];
 
+  // Track collectors to renew them if their 'lifeTime' ends
+  private collectors: {
+    [key: string]: {
+      collector: InteractionCollector<MessageComponentInteraction<CacheType>>;
+      ends: number; // Timestamp when the collector won't listen anymore
+    };
+  } = {};
+
   constructor(symbol: string, client: Client) {
     super(`listing_${symbol}`);
     this.symbol = symbol;
@@ -44,7 +55,7 @@ export default class ListingWorker extends Worker {
     const collectionListings = await magiceden.api.getCollectionListings(
       this.symbol,
       0,
-      20,
+      10,
     );
 
     for (const channelId of this.channels) {
@@ -54,9 +65,11 @@ export default class ListingWorker extends Worker {
       )) as TextChannel;
 
       // Start listening on channel events
-      this.listenOnChannelComponentEvents(channel);
+      this.listenOnButtonInteractions(channel);
 
       for (const listing of collectionListings) {
+        if (listing.price > 70) continue;
+
         const listingHash = crypto
           .createHash('md5')
           .update(
@@ -130,6 +143,7 @@ export default class ListingWorker extends Worker {
         }
 
         // Send and track listing and listing message
+        console.log('Send Message'); // TODO REMOVE
         const message = await channel.send({
           components: [actionRowMessage as any],
           embeds: [embedMessage],
@@ -149,7 +163,7 @@ export default class ListingWorker extends Worker {
 
     // Remove the oldest message, so the messages won't stack up endless
     if (this.messageIds.length > this.messageLimit) {
-      const toRemoveMessageId = this.messageIds.pop();
+      const toRemoveMessageId = this.messageIds.shift();
       delete this.messages[toRemoveMessageId!];
     }
   }
@@ -164,39 +178,52 @@ export default class ListingWorker extends Worker {
     this.notifiedListings.push(listingHash);
 
     if (this.notifiedListings.length > this.listingLimit) {
-      this.notifiedListings.pop();
+      this.notifiedListings.shift();
     }
   }
 
-  private listenOnChannelComponentEvents(channel: TextChannel) {
-    // Listen to button presses in the channel
-    const collector = channel.createMessageComponentCollector({
-      // Listen until the next run event hits (to avoid multiple collector listener)
-      time: listingWorkerThread.config.interval,
-    });
+  private listenOnButtonInteractions(channel: TextChannel) {
+    const trackedCollector = this.collectors[channel.id];
 
-    collector.on('collect', async (btnInt: ButtonInteraction) => {
-      console.log('COLLECT ', btnInt.customId); // TODO REMOVE
-      if (btnInt.customId === ListingWorker.BUY_BTN_ID) {
-        const messageId = btnInt.message.id;
-        const data = this.messages[messageId];
+    // Create new collector and listen to button events if the old collector got destroyed
+    if (trackedCollector == null || Date.now() > trackedCollector.ends) {
+      const timeToLife = 1000 * 60 * 5;
+      const collector = channel.createMessageComponentCollector({
+        time: timeToLife, // 5min
+      });
 
-        if (data != null) {
-          this.untrackMessage(messageId);
+      collector.on('collect', (btnInt: ButtonInteraction) =>
+        this.onButtonInteraction(btnInt),
+      );
 
-          await buyNFT({
-            auctionHouseAddress: data.listing.auctionHouse,
-            tokenMint: data.listing.tokenMint,
-            tokenATA: data.listing.tokenAddress,
-            price: data.listing.price,
-            seller: data.listing.seller,
-          });
+      this.collectors[channel.id] = {
+        collector,
+        ends: Date.now() + timeToLife,
+      };
+    }
+  }
 
-          btnInt.reply({
-            content: `${btnInt.user} just bought ${data.listing.nftData?.name}`,
-          });
-        }
+  private async onButtonInteraction(btnInt: ButtonInteraction): Promise<void> {
+    console.log('COLLECT ', btnInt.customId); // TODO REMOVE
+    if (btnInt.customId === ListingWorker.BUY_BTN_ID) {
+      const messageId = btnInt.message.id;
+      const data = this.messages[messageId];
+
+      if (data != null) {
+        this.untrackMessage(messageId);
+
+        await buyNFT({
+          auctionHouseAddress: data.listing.auctionHouse,
+          tokenMint: data.listing.tokenMint,
+          tokenATA: data.listing.tokenAddress,
+          price: data.listing.price,
+          seller: data.listing.seller,
+        });
+
+        btnInt.reply({
+          content: `${btnInt.user} just bought ${data.listing.nftData?.name}`,
+        });
       }
-    });
+    }
   }
 }

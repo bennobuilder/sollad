@@ -7,7 +7,8 @@ const listingWorkerThread = new WorkerThread(
   [
     new ListingWorker('metaworms', dcClient), // TODO REMOVE
   ],
-  { interval: 5000 },
+  { interval: 3000 },
 );
+// trippin_ape_tribe
 
 export { Worker, WorkerThread, listingWorkerThread };

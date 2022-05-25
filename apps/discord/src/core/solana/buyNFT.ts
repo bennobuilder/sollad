@@ -1,11 +1,10 @@
 import * as web3 from '@solana/web3.js';
-import config from '../../config';
 import * as anchor from '@project-serum/anchor';
 import axios from 'axios';
 import { newConnection } from './connection';
 import solanaConfig from '../../config/solana.config';
-import { toUTF8Array } from '../utils/toUTF8Array';
 import bs58 from 'bs58';
+import { Buffer } from 'buffer';
 
 export async function buyNFT(config: {
   auctionHouseAddress: string;
@@ -51,7 +50,7 @@ export async function buyNFT(config: {
         tokenMint,
         tokenATA,
         price,
-        // sellerReferral: 'todo',
+        // sellerReferral: 'idk',
         // sellerExpiry: -1,
       },
       headers: {
@@ -70,15 +69,31 @@ export async function buyNFT(config: {
     },
   );
 
+  // TODO
+  // TransactionError
+  // Error 0x7d3 = 2003
+  // https://stackoverflow.com/questions/68450242/i-want-to-know-causing-a-solana-transfer-error/71450262#71450262
+  // https://docs.rs/anchor-lang/0.20.1/anchor_lang/__private/enum.ErrorCode.html
+
   const tx = response.data.tx;
   if (tx != null) {
-    console.log('TX', { tx });
-    const signature = provider.sendAndConfirm(
+    console.log('Transaction', { tx });
+    const signature = await provider.sendAndConfirm(
       anchor.web3.Transaction.populate(
         anchor.web3.Message.from(Buffer.from(tx.data)),
       ),
     );
 
-    console.log(signature);
+    // const transaction = new web3.Transaction();
+    // transaction.add(
+    //   anchor.web3.Transaction.populate(
+    //     anchor.web3.Message.from(Buffer.from(tx.data)),
+    //   ),
+    // );
+    // const signature = await sendAndConfirmTransaction(conn, transaction, [
+    //   userWalletKeypair,
+    // ]);
+
+    console.log('Signature: ', signature);
   }
 }

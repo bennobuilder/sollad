@@ -72,7 +72,7 @@ export default class WorkerThread {
       try {
         return worker.isRunning ? Promise.resolve() : await worker.run();
       } catch (e) {
-        console.warn(e);
+        console.warn('Error running Worker', e);
       }
     });
 
