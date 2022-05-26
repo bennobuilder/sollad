@@ -1,4 +1,4 @@
-import { listingWorkerThread, Worker } from '../../../core/worker';
+import { Worker } from '../../../core/worker';
 import { magiceden } from '../../../core';
 import {
   ButtonInteraction,
@@ -52,11 +52,14 @@ export default class ListingWorker extends Worker {
     this.isRunning = true;
 
     // Fetch listings
-    const collectionListings = await magiceden.api.getCollectionListings(
+    let collectionListings = await magiceden.api.getCollectionListings(
       this.symbol,
       0,
       10,
     );
+
+    // Reverse as the first item is the latest listed but should be printed at last
+    collectionListings = collectionListings.reverse();
 
     for (const channelId of this.channels) {
       // Get channel to send the listings in
@@ -116,25 +119,42 @@ export default class ListingWorker extends Worker {
             text: `Listed on Magic Eden`,
             iconURL: 'https://www.magiceden.io/img/favicon.png',
           },
-          title: `**Listings of ${listing.extra.nftData?.name} (${this.symbol})**`,
+          title: `${listing.extra.nftData?.name}`,
           url: `https://magiceden.io/item-details/${listing.tokenMint}`,
+          description: listing.extra.nftData?.description || '',
           fields: [
+            {
+              name: 'Collection',
+              value: listing.extra.nftData?.collection.name || '',
+              inline: true,
+            },
+            {
+              name: 'Symbol',
+              value: listing.extra.nftData?.symbol || '',
+              inline: true,
+            },
+            { name: '\u200B', value: '\u200B' },
             {
               name: 'Price',
               value: listing.price.toString() + ' SOL',
-              inline: false,
+              inline: true,
             },
             {
               name: 'Mint Address',
-              value: listing.tokenMint || 'unknown',
-              inline: false,
+              value: `[${truncate(
+                listing.tokenMint,
+              )}](${`https://solscan.io/token/${listing.tokenMint}`})`,
+              inline: true,
             },
             {
-              name: 'Auction House Address',
-              value: listing.auctionHouse || 'unknown',
-              inline: false,
+              name: 'Rarity',
+              value: `[${
+                listing.rarity.howrare?.rank || 'unknown'
+              }](${`https://howrare.is/${listing.tokenMint}`})`,
+              inline: true,
             },
           ],
+          timestamp: Date.now(), // TODO update to real listing date based on transaction made (see tokenMint)
         });
 
         // Set nft image

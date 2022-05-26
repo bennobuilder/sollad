@@ -67,21 +67,28 @@ type PropertiesType = {
 // {
 //   name: 'MetaWorm #60',
 //   symbol: 'MW',
-//   description: 'MetaWorms is a collection of randomly generated worms roaming the Solana blockchain.',
+//   description:
+//     'MetaWorms is a collection of randomly generated worms roaming the Solana blockchain.',
 //   seller_fee_basis_points: 800,
-//   image: 'https://arweave.net/7MGiVgxQhcwJfPv2GG-HLvIlUnkQKWFVqYPgnZ1tKYM?ext=png',
-//   attributes: attributes: [
+//   image:
+//     'https://arweave.net/7MGiVgxQhcwJfPv2GG-HLvIlUnkQKWFVqYPgnZ1tKYM?ext=png',
+//   attributes: [
 //     { traitType: 'Background', value: 'Pink' },
 //     { traitType: 'Body', value: 'Red' },
 //     { traitType: 'Clothes', value: 'Bandana' },
 //     { traitType: 'Mouth', value: 'Weird' },
 //     { traitType: 'Eye', value: 'Hypnosis' },
-//     { traitType: 'Hat', value: 'Candles' }
+//     { traitType: 'Hat', value: 'Candles' },
 //   ],
 //   collection: { name: 'MetaWorm', family: 'MetaWorm' },
-//   properties: { files: [ { uri: '4224.png', type: 'image/png' } ], category: 'image', creators: [{
-//       address: '6ZGW36zKDwBBcjoym4djxx6ks6CD21JS24M52DxeaGts',
-//       share: 100
-//     }]
-//   }
+//   properties: {
+//     files: [{ uri: '4224.png', type: 'image/png' }],
+//     category: 'image',
+//     creators: [
+//       {
+//         address: '6ZGW36zKDwBBcjoym4djxx6ks6CD21JS24M52DxeaGts',
+//         share: 100,
+//       },
+//     ],
+//   },
 // }

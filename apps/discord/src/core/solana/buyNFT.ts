@@ -69,20 +69,22 @@ export async function buyNFT(config: {
 
   const tx = response.data.tx;
   if (tx != null) {
-    console.log('Transaction', { tx, wallet: provider.wallet });
+    try {
+      // For testing otherwise it gets expensive lol
+      const signature = await provider.simulate(
+        anchor.web3.Transaction.populate(anchor.web3.Message.from(tx.data)),
+      );
 
-    // For testing otherwise it gets expensive lol
-    const signature = await provider.simulate(
-      anchor.web3.Transaction.populate(anchor.web3.Message.from(tx.data)),
-    );
+      // Sends the MagicEden transaction, paid for and signed by the provider's wallet
+      // const signature = await provider.sendAndConfirm(
+      //   anchor.web3.Transaction.populate(
+      //     anchor.web3.Message.from(Buffer.from(tx.data)),
+      //   ),
+      // );
 
-    // Sends the MagicEden transaction, paid for and signed by the provider's wallet
-    // const signature = await provider.sendAndConfirm(
-    //   anchor.web3.Transaction.populate(
-    //     anchor.web3.Message.from(Buffer.from(tx.data)),
-    //   ),
-    // );
-
-    console.log('Signature: ', signature);
+      console.log('Signature: ', signature);
+    } catch (e) {
+      console.error(e);
+    }
   }
 }

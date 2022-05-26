@@ -5,9 +5,9 @@ import { dcClient } from '../../index';
 
 const listingWorkerThread = new WorkerThread(
   [
-    new ListingWorker('metaworms', dcClient), // TODO REMOVE
+    new ListingWorker('sea_shanties', dcClient), // TODO REMOVE
   ],
-  { interval: 3000 },
+  { interval: 5000 },
 );
 // trippin_ape_tribe
 
