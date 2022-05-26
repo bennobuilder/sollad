@@ -116,7 +116,7 @@ export default class ListingWorker extends Worker {
             text: `Listed on Magic Eden`,
             iconURL: 'https://www.magiceden.io/img/favicon.png',
           },
-          title: `**Listings of ${listing.nftData?.name} (${this.symbol})**`,
+          title: `**Listings of ${listing.extra.nftData?.name} (${this.symbol})**`,
           url: `https://magiceden.io/item-details/${listing.tokenMint}`,
           fields: [
             {
@@ -138,12 +138,14 @@ export default class ListingWorker extends Worker {
         });
 
         // Set nft image
-        if (listing.nftData != null) {
-          embedMessage.setImage(listing.nftData.image);
+        if (listing.extra.nftData != null) {
+          embedMessage.setImage(listing.extra.nftData.image);
         }
 
         // Send and track listing and listing message
-        console.log('Send Message'); // TODO REMOVE
+        console.log(`Send Message: ${listing.extra.nftData?.name}`, {
+          rarity: listing.rarity,
+        }); // TODO REMOVE
         const message = await channel.send({
           components: [actionRowMessage as any],
           embeds: [embedMessage],
@@ -218,10 +220,11 @@ export default class ListingWorker extends Worker {
           tokenATA: data.listing.tokenAddress,
           price: data.listing.price,
           seller: data.listing.seller,
+          sellerReferral: data.listing.sellerReferral,
         });
 
         btnInt.reply({
-          content: `${btnInt.user} just bought ${data.listing.nftData?.name}`,
+          content: `${btnInt.user} just bought ${data.listing.extra.nftData?.name}`,
         });
       }
     }

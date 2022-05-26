@@ -51,9 +51,9 @@ export class MagicEdenApi {
     if (data == null) return data;
 
     // Fetch more detailed extra NFT Data
+    const conn = newConnection();
     for (const item of data) {
-      const conn = newConnection();
-      item.nftData = await fetchNFTData(conn, item.tokenMint);
+      item.extra.nftData = await fetchNFTData(conn, item.tokenMint);
     }
 
     return data;
