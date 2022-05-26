@@ -1,4 +1,4 @@
-import { NFTData } from '../solana/fetchNFTData';
+import { NFTDataType } from '../solana/fetchNFTData';
 
 export type Collection = {
   symbol: string;
@@ -24,7 +24,7 @@ export type CollectionListItem = {
   rarity: { howrare?: { rank: string } };
   extra: {
     img: string;
-    nftData: NFTData | null;
+    nftData: NFTDataType | null;
   };
 };
 

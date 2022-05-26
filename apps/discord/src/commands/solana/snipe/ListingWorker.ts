@@ -143,9 +143,7 @@ export default class ListingWorker extends Worker {
         }
 
         // Send and track listing and listing message
-        console.log(`Send Message: ${listing.extra.nftData?.name}`, {
-          rarity: listing.rarity,
-        }); // TODO REMOVE
+        console.log(`Send Message: ${listing.extra.nftData?.name}`); // TODO REMOVE
         const message = await channel.send({
           components: [actionRowMessage as any],
           embeds: [embedMessage],
