@@ -1,10 +1,10 @@
 import { Router } from 'express';
 
 // Routes
-import marketplaceRoutes from './nft/marketplace';
+import magicedenRoutes from './magiceden';
 
 const router = Router();
 
-router.use('/solana', marketplaceRoutes);
+router.use('/me', magicedenRoutes);
 
 export default router;

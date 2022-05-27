@@ -1,0 +1,348 @@
+swagger: "2.0"
+info:
+  description: "This is the API for the sollad backend. This API is ONLY intended for use by sollad services and is designed around the Solana Blockchain."
+  version: "0.0.0"
+  title: "@sl/api-definition"
+  contact:
+    email: "contact@sollad.com"
+  license:
+    name: "Licence"
+    url: "https://github.com/bennodev19/sollad/blob/main/LICENCE.txt"
+host: "api.sollad.com"
+basePath: "/v1"
+tags:
+  - name: "token"
+    description: "Get information of a token / NFT."
+  - name: "collection"
+    description: "Get information of collections."
+  - name: "instructions"
+    description: "Send instructions for trading."
+schemes:
+  - "https"
+  - "http"
+paths:
+  /token/{token_mint}:
+    get:
+      tags:
+        - "token"
+      summary: "Get token metadata by mint address."
+      description: ""
+      operationId: "getTokenMetadata"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "token_mint"
+          in: "path"
+          description: "Mint address of the token."
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "Successful operation."
+          schema:
+            $ref: "#/definitions/TokenMetadata"
+        "400":
+          description: "Invalid mint address supplied."
+        "404":
+          description: "Token not found."
+  /collection/{symbol}:
+    get:
+      tags:
+        - "collection"
+      summary: "Get collection metadata by symbol."
+      description: ""
+      operationId: "getCollection"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "symbol"
+          in: "path"
+          description: "Symbol of the collection."
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "Successful operation."
+          schema:
+            $ref: "#/definitions/Collection"
+        "400":
+          description: "Invalid symbol supplied."
+        "404":
+          description: "Collection not found."
+  /collection/{symbol}/watch/listings:
+    get:
+      tags:
+        - "collection"
+      summary: "Subscribe to token listing events of a collection."
+      description: ""
+      operationId: "watchCollectionListings"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "symbol"
+          in: "path"
+          description: "Symbol of the collection."
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "Successful operation."
+          schema:
+            $ref: "#/definitions/TokenListing"
+        "400":
+          description: "Invalid symbol supplied."
+        "404":
+          description: "Collection not found."
+  /collection/{symbol}/watch/purchases:
+    get:
+      tags:
+        - "collection"
+      summary: "Subscribe to token selling events of a collection."
+      description: ""
+      operationId: "watchCollection"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "symbol"
+          in: "path"
+          description: "Symbol of the collection."
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "Successful operation."
+          schema:
+            $ref: "#/definitions/TokenSold"
+        "400":
+          description: "Invalid symbol supplied."
+        "404":
+          description: "Collection not found."
+  /instructions/me/buy_now:
+    get:
+      tags:
+        - "instructions"
+      summary: "Buy a NFT now on Magic Eden."
+      description: ""
+      operationId: "buyNowInstructionOnMagicEden"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "fields"
+          in: "query"
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+              tokenMint:
+                type: string
+
+      responses:
+        "200":
+          description: "Successful operation."
+          schema:
+            $ref: "#/definitions/TODO"
+        "400":
+          description: "Invalid query data supplied."
+        "404":
+          description: "NFT not found."
+
+definitions:
+  Collection:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+        example: "MetaWorm"
+      family:
+        type: "string"
+        example: "MetaWorm"
+      description:
+        type: "string"
+        example: "MetaWorms is a collection of randomly generated worms roaming the Solana blockchain."
+      imageUrl:
+        type: "string"
+        example: "https://creator-hub-prod.s3.us-east-2.amazonaws.com/metaworms_pfp_1648564959383.jpeg"
+      createdAt:
+        type: "string"
+        example: "MetaWorms is a collection of randomly generated worms roaming the Solana blockchain."
+      isDerived:
+        type: "boolean"
+        example: false
+      discord:
+        type: "string"
+        example: "https://www.discord.gg/v5U8zRAfrH"
+      twitter:
+        type: "string"
+        example: "https://www.twitter.com/MetaWormNFT"
+      website:
+        type: "string"
+        example: "https://metawormnft.com"
+      totalItems:
+        type: "integer"
+        format: "int64"
+        example: 6666
+
+  TokenMetadata:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        example: "MetaWorm #60"
+      symbol:
+        type: "string"
+        example: "MW"
+      tokenMint:
+        type: "string"
+        description: "Mint address of the token / NFT"
+        example: "HdcrPMF4kHKqy5V9JibNSoWLNpqnxQUBDEBeimZkLf7u"
+      sellerFeeBasisPoints:
+        type: "integer"
+        format: "int64"
+        example: 800
+      imageUrl:
+        type: "string"
+        example: "https://arweave.net/7MGiVgxQhcwJfPv2GG-HLvIlUnkQKWFVqYPgnZ1tKYM?ext=png"
+      attributes:
+        type: "array"
+        items:
+          $ref: "#/definitions/TokenAttributes"
+      collection:
+        $ref: "#/definitions/Collection"
+      properties:
+        $ref: "#/definitions/TokenProperties"
+
+  TokenAttributes:
+    type: "object"
+    properties:
+      traitType:
+        type: "string"
+        example: "Background"
+      value:
+        type: "string"
+        example: "Pink"
+
+  TokenProperties:
+    type: "object"
+    properties:
+      category:
+        type: "string"
+        example: "image"
+      creators:
+        type: "array"
+        items:
+          $ref: "#/definitions/TokenCreator"
+
+  TokenCreator:
+    type: "object"
+    properties:
+      address:
+        type: "string"
+        example: "6ZGW36zKDwBBcjoym4djxx6ks6CD21JS24M52DxeaGts"
+      share:
+        type: "integer"
+        format: "int64"
+        example: 100
+
+  TokenListing:
+    type: "object"
+    properties:
+      marketplace:
+        $ref: "#/definitions/Marketplace"
+      token:
+        $ref: '#/definitions/TokenMetadata'
+      pdaAddress:
+        type: "string"
+        example: "BaUX9EGhbqdEHhLDN3Ypd4M97P1czX8H87H8smcV3Ee4"
+      auctionHouse:
+        type: "string"
+        example: "E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe"
+      tokenAddress:
+        type: "string"
+        example: "HP91KznvAa7unW6cE4ZG7cU3YNUjuJNeGg4PVGRa9byB"
+      tokenSize:
+        type: "integer"
+        format: "int64"
+        example: 1
+      seller:
+        type: "string"
+        example: "EWmtsfBA8EikR3vvhsXgxn7cBQCUZfXJ7jMwXUpYRzXY"
+      price:
+        type: "integer"
+        format: "int64"
+        example: 99
+
+  TokenSold:
+    type: "object"
+    properties:
+      marketplace:
+        $ref: "#/definitions/Marketplace"
+      token:
+        $ref: '#/definitions/TokenMetadata'
+      transaction:
+        type: "string"
+        example: "6ZGW36zKDwBBcjoym4djxx6ks6CD21JS24M52DxeaGts"
+      method:
+        type: "string"
+        enum:
+          - "direct"
+          - "bid"
+      soldAt:
+        type: "string"
+        example: "2022-03-15T14:46:59.314Z"
+      seller:
+        type: "string"
+        example: "EWmtsfBA8EikR3vvhsXgxn7cBQCUZfXJ7jMwXUpYRzXY"
+      buyer:
+        type: "string"
+        example: "EWmtsfBA8EikR3vvhsXgxn7cBQCUZfXJ7jMwXUpYRzXY"
+      price:
+        type: "integer"
+        format: "int64"
+        example: 99
+
+  Marketplace:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+        example: "Magic Eden"
+      programIds:
+        type: "array"
+        description: "Public Keys of Wallets belonging to Magic Eden where the listed NFTs are hold."
+        items:
+          type: "string"
+      imageUrl:
+        type: "string"
+        example: "https://www.magiceden.io/img/favicon.png"
+      tokenUrl:
+        type: "string"
+        description: "Url to visit a NFT listing on their website."
+        example: "https://magiceden.io/item-details/%s"
+
+  Error:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      type:
+        type: "string"
+      description:
+        type: "string"
