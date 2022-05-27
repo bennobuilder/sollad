@@ -1,11 +1,14 @@
 import { createServer as createHttpServer } from 'http';
 import config from './config';
 import app from './app';
+import { connectDB } from './db';
 
-export const { httpServer } = (() => {
+export const { httpServer } = await (async () => {
   const PORT = config.app.port;
-
   const httpServer = createHttpServer();
+
+  // Connect to Database
+  await connectDB();
 
   // Assign express as request listeners
   app.set('port', PORT);
@@ -23,7 +26,7 @@ export const { httpServer } = (() => {
     console.log(`Running on Port: ${PORT}`);
   });
 
-  // Starts the HTTP server listening for connections
+  // Start HTTP server and listen for connections to the specified PORT
   httpServer.listen(PORT);
 
   return { httpServer };

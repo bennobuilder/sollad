@@ -1,4 +1,7 @@
 {
+  "compilerOptions": {
+      "experimentalDecorators": true
+  },
   "extends": "@sl/config/tsconfig.base.json",
   "include": [
     "src",

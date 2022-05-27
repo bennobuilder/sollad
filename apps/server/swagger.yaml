@@ -182,19 +182,25 @@ definitions:
       isDerived:
         type: "boolean"
         example: false
-      discord:
+      discordUrl:
         type: "string"
         example: "https://www.discord.gg/v5U8zRAfrH"
-      twitter:
+      twitterUrl:
         type: "string"
         example: "https://www.twitter.com/MetaWormNFT"
-      website:
+      websiteUrl:
         type: "string"
         example: "https://metawormnft.com"
       totalItems:
         type: "integer"
         format: "int64"
         example: 6666
+      categories:
+        type: "array"
+        items:
+          type: "string"
+          example: "worm"
+
 
   TokenMetadata:
     type: "object"
@@ -334,7 +340,10 @@ definitions:
       tokenUrl:
         type: "string"
         description: "Url to visit a NFT listing on their website."
-        example: "https://magiceden.io/item-details/%s"
+        example: "https://magiceden.io/item-details/${symbol}"
+      symbol:
+        type: "string"
+        example: "meta_worms"
 
   Error:
     type: "object"

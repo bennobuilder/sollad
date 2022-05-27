@@ -6,9 +6,9 @@ import config from './config';
 import createHttpError from 'http-errors';
 import routes from './routes';
 
-const {
-  app,
-} = () => {
+const appConfig = config.app;
+
+const { app } = (() => {
   const app = express();
 
   // Logging Middleware
@@ -24,7 +24,7 @@ const {
     cors({
       // Access-Control-Allow-Origin
       // https://stackoverflow.com/questions/26988071/allow-multiple-cors-domain-in-express-js
-      origin: config.app.corsOrigins,
+      origin: appConfig.corsOrigins,
       credentials: true, // Access-Control-Allow-Credentials
     }),
   );
@@ -54,7 +54,7 @@ const {
     res.json({ error: err });
   });
 
-  return app;
-};
+  return { app };
+})();
 
 export default app;

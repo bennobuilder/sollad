@@ -6,9 +6,11 @@ dotenv.config({ path: `.env.${ENVIRONMENT}` });
 
 // Configuration Objects
 import appConfig from './app.config';
+import ormConfig from '@sl/backend/src/config/orm.config';
 
 export const config = {
   app: appConfig,
+  orm: ormConfig,
 };
 
 console.log(`Loaded Environment Variables from '.env.${ENVIRONMENT}'`, config);
