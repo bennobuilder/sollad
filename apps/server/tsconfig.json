@@ -1,11 +1,12 @@
 {
-  "compilerOptions": {
-      "experimentalDecorators": true
-  },
   "extends": "@sl/config/tsconfig.base.json",
   "include": [
     "src",
     "README.md",
     "../../node_modules/@types/lodash/index.d.ts"
-  ]
+  ],
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "outDir": "./dist"
+  }
 }

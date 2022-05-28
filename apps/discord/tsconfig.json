@@ -2,7 +2,12 @@
   "extends": "@sl/config/tsconfig.base.json",
   "include": [
     "src",
-    "README.md",
-    "../../node_modules/@types/lodash/index.d.ts"
-  ]
+    "README.md"
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@sl/server": ["../../apps/server"],
+    },
+    "outDir": "./dist"
+  }
 }
