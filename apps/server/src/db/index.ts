@@ -1,4 +1,6 @@
 export * from './setup';
 
 // Entities
-export * from './entities/User.entity';
+export * from './entities/discord';
+export * from './entities/nft';
+export * from './entities/user';

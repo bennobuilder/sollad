@@ -11,9 +11,9 @@ info:
 host: "api.sollad.com"
 basePath: "/v1"
 tags:
-  - name: "token"
+  - name: "tokens"
     description: "Get information of a token / NFT."
-  - name: "collection"
+  - name: "collections"
     description: "Get information of collections."
   - name: "instructions"
     description: "Send instructions for trading."
@@ -21,10 +21,10 @@ schemes:
   - "https"
   - "http"
 paths:
-  /token/{token_mint}:
+  /tokens/{token_mint}:
     get:
       tags:
-        - "token"
+        - "tokens"
       summary: "Get token metadata by mint address."
       description: ""
       operationId: "getTokenMetadata"
@@ -47,10 +47,10 @@ paths:
           description: "Invalid mint address supplied."
         "404":
           description: "Token not found."
-  /collection/{symbol}:
+  /collections/{symbol}:
     get:
       tags:
-        - "collection"
+        - "collections"
       summary: "Get collection metadata by symbol."
       description: ""
       operationId: "getCollection"
@@ -73,10 +73,10 @@ paths:
           description: "Invalid symbol supplied."
         "404":
           description: "Collection not found."
-  /collection/{symbol}/watch/listings:
+  /collections/{symbol}/watch/listings:
     get:
       tags:
-        - "collection"
+        - "collections"
       summary: "Subscribe to token listing events of a collection."
       description: ""
       operationId: "watchCollectionListings"
@@ -99,10 +99,10 @@ paths:
           description: "Invalid symbol supplied."
         "404":
           description: "Collection not found."
-  /collection/{symbol}/watch/purchases:
+  /collections/{symbol}/watch/purchases:
     get:
       tags:
-        - "collection"
+        - "collections"
       summary: "Subscribe to token selling events of a collection."
       description: ""
       operationId: "watchCollection"

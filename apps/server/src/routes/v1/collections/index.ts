@@ -2,6 +2,6 @@ import { Router } from 'express';
 
 const router = Router();
 
-// TODO Routes
+// router.use('/collections', todo);
 
 export default router;
