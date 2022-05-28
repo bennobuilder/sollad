@@ -1,5 +1,4 @@
-import { Column, Entity, getRepository, OneToOne, Repository } from 'typeorm';
-import { isConnectedToDB } from '../../setup';
+import { Column, Entity, OneToOne } from 'typeorm';
 import { Wallet } from './Wallet.entity';
 import { JoinColumn } from 'typeorm/browser';
 

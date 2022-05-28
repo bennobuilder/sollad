@@ -16,7 +16,7 @@ const { getEntityRepository } = (() => {
 
   function getEntityRepository<Entity>(
     entityClass: EntityTarget<Entity>,
-  ): Repository<Collection> {
+  ): Repository<Entity> {
     if (isConnectedToDB) {
       let repository = repositories.get(entityClass);
       if (repository == null) {

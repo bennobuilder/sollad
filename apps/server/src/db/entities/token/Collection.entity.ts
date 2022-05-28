@@ -1,14 +1,5 @@
-import {
-  Column,
-  Entity,
-  OneToMany,
-  getConnection,
-  PrimaryGeneratedColumn,
-  Repository,
-} from 'typeorm';
-import { isConnectedToDB } from '../../setup';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { CollectionCategory } from './CollectionCategory.entity';
-import { EntityTarget } from 'typeorm/common/EntityTarget';
 
 @Entity({ name: 'collections' })
 export class Collection {

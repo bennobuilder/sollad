@@ -1,13 +1,4 @@
-import {
-  Column,
-  Entity,
-  getRepository,
-  ManyToMany,
-  OneToMany,
-  OneToOne,
-  Repository,
-} from 'typeorm';
-import { isConnectedToDB } from '../../setup';
+import { Column, Entity, ManyToMany, OneToMany, OneToOne } from 'typeorm';
 import { Collection } from './Collection.entity';
 import { JoinColumn, JoinTable } from 'typeorm/browser';
 import { TokenAttribute } from './TokenAttribute.entity';

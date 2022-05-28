@@ -1,5 +1,4 @@
-import { Column, Entity, getRepository, Repository } from 'typeorm';
-import { isConnectedToDB } from '../../setup';
+import { Column, Entity } from 'typeorm';
 
 @Entity({ name: 'watch_collection_listings' })
 export class WatchCollectionListings {

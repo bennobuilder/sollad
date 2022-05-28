@@ -1,13 +1,7 @@
 import Marketplace from '../Marketplace';
 import config from '../../../config';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import {
-  Collection,
-  CollectionListItem,
-} from '@sl/discord/dist/core/magiceden/magiceden.types';
 import solanaConfig from '@sl/discord/dist/config/solana.config';
-import { newConnection } from '@sl/discord/dist/core/solana/connection';
-import { fetchNFTData } from '@sl/discord/dist/core/solana/fetchNFTData';
 
 const appConfig = config.app;
 
@@ -47,37 +41,115 @@ class MagicEden extends Marketplace {
     });
   }
 
-  public async getCollections(
-    launchpad = true,
-    offset = 0,
-    limit = 10,
-  ): Promise<Collection[] | null> {
-    const url = `${solanaConfig.magiceden.baseUrl}/${
-      launchpad ? 'launchpad/' : ''
-    }collections?offset=${offset}&limit=${limit}`;
-    const response = await this.fetch<Collection[]>(url);
+  public async getCollection(
+    symbol: string,
+  ): Promise<CollectionResponse | null> {
+    const url = `${solanaConfig.magiceden.baseUrl}/collections/${symbol}`;
+    const response = await this.fetch<CollectionResponse>(url);
     return response.data ?? null;
   }
 
   public async getCollectionListings(
     symbol: string,
     offset = 0,
-    limit = 10,
+    limit = 10, // max = 20
   ): Promise<CollectionListItem[]> {
     const url = `${solanaConfig.magiceden.baseUrl}/collections/${symbol}/listings?offset=${offset}&limit=${limit}`;
     const response = await this.fetch<CollectionListItem[]>(url);
-    const data = response.data ?? null;
-    if (data == null) return data;
-
-    // Fetch more detailed extra NFT Data
-    const conn = newConnection();
-    for (const item of data) {
-      item.extra.nftData = await fetchNFTData(conn, item.tokenMint);
-    }
-
-    return data;
+    return response.data ?? null;
   }
 }
 
 const magicEden = new MagicEden();
 export default magicEden;
+
+type CollectionResponse = {
+  symbol: string;
+  categories: string[];
+  createdAt: string;
+  derivativeDetails: {
+    originName: string;
+    originLink: string;
+  };
+  description: string;
+  discord: string;
+  enabledAttributesFilters: true;
+  image: string;
+  isDerivative: boolean;
+  name: string;
+  totalItems: number;
+  twitter: string;
+  website: string;
+  updatedAt: string;
+  watchlistCount: number;
+  hasAllItems: boolean;
+};
+
+// Example Response (https://api-mainnet.magiceden.io/collections/metaworms)
+// {
+//   symbol: 'metaworms',
+//   name: 'Meta Worms',
+//   description:
+//     'MetaWorms is a collection of randomly generated Worms roaming the Solana blockchain.',
+//   image:
+//     'https://creator-hub-prod.s3.us-east-2.amazonaws.com/metaworms_pfp_1648564959383.jpeg',
+//   twitter: 'https://www.twitter.com/MetaWormNFT',
+//   discord: 'https://www.discord.gg/v5U8zRAfrH',
+//   website: 'https://metawormnft.com',
+//   categories: ['art', null],
+//   floorPrice: 25000000,
+//   listedCount: 1163,
+//   avgPrice24hr: 21558333.333333332,
+//   volumeAll: 64503144417,
+// }
+
+export type CollectionListItem = {
+  pdaAddress: string;
+  auctionHouse: string;
+  tokenAddress: string;
+  tokenMint: string;
+  seller: string;
+  sellerReferral: string;
+  tokenSize: number;
+  price: number;
+  rarity: { howrare?: { rank: string } };
+  extra: {
+    img: string;
+  };
+};
+
+// Example Response (https://api-mainnet.magiceden.io/collections/metaworms/listings?offset=0&limit=2)
+// [
+//   {
+//     pdaAddress: 'AA8W5hD4NDgJM26F48jM2SqMbAh4qhFgkScnQGkd1n8j',
+//     auctionHouse: 'E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe',
+//     tokenAddress: 'EfXAhWLG4U8D678dWSb5B7DFfx6JRZbYMCZnamw75JDy',
+//     tokenMint: '4EaxZ1UUUKD6s8jLWuKjoReKqzTxqtGbaRa8d8FimTGZ',
+//     seller: '5AaYYxJXKNXazyk6gWucei8ycLUXqCnho7Epms6XbHsZ',
+//     sellerReferral: 'autMW8SgBkVYeBgqYiTuJZnkvDZMVU2MHJh9Jh7CSQ2',
+//     tokenSize: 1,
+//     price: 0.05,
+//     rarity: {},
+//     extra: {
+//       img: 'https://arweave.net/AzYASbuQrKrq_vPX8lx9Uu-bbnp3_Mx1afyuh9bBAiY?ext=png',
+//     },
+//   },
+//   {
+//     pdaAddress: 'Ac7ZoM4spMSbmRwMQnA3Sq9G9gvQkohm73pibFwhAQNy',
+//     auctionHouse: 'E8cU1WiRWjanGxmn96ewBgk9vPTcL6AEZ1t6F6fkgUWe',
+//     tokenAddress: '6nBFjNWN47bkm18oARLR4KrSUApG4kGfwsPeiD6CV8ad',
+//     tokenMint: '4xgKbrxzDnPpiX1MZuct9FmerVkuHTnxHP9t2Weg5fyp',
+//     seller: 'BZZmAApWfGpjEck8xdedKdSLsaZzxmTRkQP8aCaAijsJ',
+//     sellerReferral: 'autMW8SgBkVYeBgqYiTuJZnkvDZMVU2MHJh9Jh7CSQ2',
+//     tokenSize: 1,
+//     price: 0.025,
+//     rarity: {
+//       howrare: {
+//         rank: 4756,
+//       },
+//     },
+//     extra: {
+//       img: 'https://arweave.net/KDYplA2fG3ubuhsNUslPgZ5H7NQEK130EAAD_SFkgzM?ext=png',
+//     },
+//   },
+// ]
