@@ -21,8 +21,3 @@ export class CollectionCategory {
   @Column({ name: 'description', type: 'varchar', nullable: true })
   description?: string;
 }
-
-// To avoid this issue: https://github.com/typeorm/typeorm/issues/5362
-export function getCollectionCategoryRepository(): Repository<CollectionCategory> | null {
-  return isConnectedToDB ? getRepository(CollectionCategory) : null;
-}

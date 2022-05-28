@@ -22,8 +22,3 @@ export class User {
   @JoinColumn()
   wallet: Wallet;
 }
-
-// To avoid this issue: https://github.com/typeorm/typeorm/issues/5362
-export function getUserRepository(): Repository<User> | null {
-  return isConnectedToDB ? getRepository(User) : null;
-}

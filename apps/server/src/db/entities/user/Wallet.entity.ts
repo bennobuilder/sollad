@@ -11,8 +11,3 @@ export class Wallet {
   @Column({ name: 'private_key', type: 'varchar', unique: true })
   privateKey: string;
 }
-
-// To avoid this issue: https://github.com/typeorm/typeorm/issues/5362
-export function getWalletRepository(): Repository<Wallet> | null {
-  return isConnectedToDB ? getRepository(Wallet) : null;
-}

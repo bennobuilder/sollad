@@ -1,5 +1,6 @@
 import { sprintf } from '../utils/sprintf';
 
+const isDev = process.env.DEV === 'true';
 const port =
   process.env.PORT || // Used by services that offer managed hosting e.g. Heroku
   process.env.APP_PORT ||
@@ -7,6 +8,7 @@ const port =
 const version = process.env.APP_VERSION || 'v1';
 
 export default {
+  isDev,
   version, // API mayor version
   // https://stackoverflow.com/questions/9153571/is-there-a-way-to-get-version-from-package-json-in-nodejs-code
   packageVersion: process.env.npm_package_version, // Exact version

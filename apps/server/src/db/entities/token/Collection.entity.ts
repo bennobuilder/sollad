@@ -1,16 +1,14 @@
 import {
   Column,
   Entity,
-  getRepository,
   OneToMany,
-  OneToOne,
+  getConnection,
   PrimaryGeneratedColumn,
   Repository,
 } from 'typeorm';
 import { isConnectedToDB } from '../../setup';
-import { Wallet } from '../user/Wallet.entity';
-import { JoinColumn } from 'typeorm/browser';
 import { CollectionCategory } from './CollectionCategory.entity';
+import { EntityTarget } from 'typeorm/common/EntityTarget';
 
 @Entity({ name: 'collections' })
 export class Collection {
@@ -22,6 +20,9 @@ export class Collection {
 
   @Column({ name: 'family', type: 'varchar', nullable: true })
   family?: string;
+
+  @Column({ name: 'symbol', type: 'varchar' })
+  symbol: string;
 
   @Column({ name: 'description', type: 'varchar', nullable: true })
   description?: string;
@@ -49,9 +50,4 @@ export class Collection {
 
   @OneToMany(() => CollectionCategory, (category) => category.collectionId)
   categories: CollectionCategory[];
-}
-
-// To avoid this issue: https://github.com/typeorm/typeorm/issues/5362
-export function getCollectionRepository(): Repository<Collection> | null {
-  return isConnectedToDB ? getRepository(Collection) : null;
 }

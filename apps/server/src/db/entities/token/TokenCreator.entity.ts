@@ -18,8 +18,3 @@ export class TokenCreator {
   @Column({ name: 'share', type: 'integer' })
   share: number;
 }
-
-// To avoid this issue: https://github.com/typeorm/typeorm/issues/5362
-export function getTokenCreatorRepository(): Repository<TokenCreator> | null {
-  return isConnectedToDB ? getRepository(TokenCreator) : null;
-}

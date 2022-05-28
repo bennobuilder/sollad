@@ -20,8 +20,3 @@ export class WatchCollectionListings {
   @Column({ name: 'name', type: 'varchar' })
   name: string;
 }
-
-// To avoid this issue: https://github.com/typeorm/typeorm/issues/5362
-export function getWatchCollectionListingsRepository(): Repository<WatchCollectionListings> | null {
-  return isConnectedToDB ? getRepository(WatchCollectionListings) : null;
-}

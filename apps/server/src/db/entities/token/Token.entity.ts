@@ -46,8 +46,3 @@ export class Token {
   @JoinTable()
   creators: TokenCreator[];
 }
-
-// To avoid this issue: https://github.com/typeorm/typeorm/issues/5362
-export function getTokenRepository(): Repository<Token> | null {
-  return isConnectedToDB ? getRepository(Token) : null;
-}
