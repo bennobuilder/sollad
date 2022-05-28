@@ -2,6 +2,6 @@ import { Router } from 'express';
 
 const router = Router();
 
-// router.use('/solana', todo);
+// router.get('/solana', todo);
 
 export default router;
