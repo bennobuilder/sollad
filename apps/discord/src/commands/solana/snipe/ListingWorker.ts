@@ -49,131 +49,166 @@ export default class ListingWorker extends Worker {
   }
 
   public async run(): Promise<void> {
-    this.isRunning = true;
+    try {
+      this.isRunning = true;
 
-    // Fetch listings
-    let collectionListings = await magiceden.api.getCollectionListings(
-      this.symbol,
-      0,
-      10,
-    );
+      // Fetch listings
+      let collectionListings = await magiceden.api.getCollectionListings(
+        this.symbol,
+        0,
+        20,
+      );
 
-    // Reverse as the first item is the latest listed but should be printed at last
-    collectionListings = collectionListings.reverse();
+      // Reverse as the first item is the latest listed but should be printed at last
+      collectionListings = collectionListings.reverse();
 
-    for (const channelId of this.channels) {
-      // Get channel to send the listings in
-      const channel = (await this.client.channels.fetch(
-        channelId,
-      )) as TextChannel;
+      for (const channelId of this.channels) {
+        // Get channel to send the listings in
+        const channel = (await this.client.channels.fetch(
+          channelId,
+        )) as TextChannel;
 
-      // Start listening on channel events
-      this.listenOnButtonInteractions(channel);
+        // Start listening on channel events
+        this.listenOnButtonInteractions(channel);
 
-      for (const listing of collectionListings) {
-        if (listing.price > 70) continue;
+        for (const listing of collectionListings) {
+          const tier = listing.extra.nftData?.attributes.find(
+            (trait) => trait.traitType === 'Tier',
+          );
+          console.log('Listing', {
+            tier: tier?.value,
+            price: listing.price,
+            buy: listing.price <= 10,
+          });
 
-        const listingHash = crypto
-          .createHash('md5')
-          .update(
-            JSON.stringify({
-              channelId,
-              nft: `${listing.tokenMint}_${listing.price}`,
-            }),
-          )
-          .digest('hex');
+          // Only list nfts with sniper trait
+          if (tier?.value !== 'Platform Access + Snipe Tool') {
+            continue;
+          }
 
-        // Check whether listing was already notified in the channel
-        if (this.notifiedListings.includes(listingHash)) continue;
+          // Buy instantly if its in the wished priceRange
+          if (listing.price <= 10) {
+            await buyNFT({
+              auctionHouseAddress: listing.auctionHouse,
+              tokenMint: listing.tokenMint,
+              tokenATA: listing.tokenAddress,
+              price: listing.price,
+              seller: listing.seller,
+              sellerReferral: listing.sellerReferral,
+            });
 
-        // Build interaction buttons
-        const actionRowMessage = new MessageActionRow({
-          type: 1,
-          components: [
-            {
-              custom_id: ListingWorker.BUY_BTN_ID,
-              style: 'SECONDARY',
-              label: `Buy`,
-              disabled: false,
-              type: 2,
+            channel.send({
+              content: `BennoDev#9351 just bought ${listing.extra.nftData?.name} for ${listing.price}`,
+            });
+          }
+
+          const listingHash = crypto
+            .createHash('md5')
+            .update(
+              JSON.stringify({
+                channelId,
+                nft: `${listing.tokenMint}_${listing.price}`,
+              }),
+            )
+            .digest('hex');
+
+          // Check whether listing was already notified in the channel
+          if (this.notifiedListings.includes(listingHash)) continue;
+
+          // Build interaction buttons
+          const actionRowMessage = new MessageActionRow({
+            type: 1,
+            components: [
+              {
+                custom_id: ListingWorker.BUY_BTN_ID,
+                style: 'SECONDARY',
+                label: `Buy`,
+                disabled: false,
+                type: 2,
+              },
+              {
+                style: 'LINK',
+                label: `View`,
+                url: `https://magiceden.io/item-details/${listing.tokenMint}`,
+                disabled: false,
+                type: 2,
+              },
+            ],
+          });
+
+          // Build message
+          const embedMessage = new MessageEmbed({
+            color: '#000000',
+            author: {
+              name: truncate(listing.seller),
+              iconURL: 'https://matrica.io/profile.png',
+              url: `https://matrica.io/wallet/${listing.seller}`,
             },
-            {
-              style: 'LINK',
-              label: `View`,
-              url: `https://magiceden.io/item-details/${listing.tokenMint}`,
-              disabled: false,
-              type: 2,
+            footer: {
+              text: `Listed on Magic Eden`,
+              iconURL: 'https://www.magiceden.io/img/favicon.png',
             },
-          ],
-        });
+            title: `${listing.extra.nftData?.name}`,
+            url: `https://magiceden.io/item-details/${listing.tokenMint}`,
+            description: listing.extra.nftData?.description || '',
+            fields: [
+              {
+                name: 'Collection',
+                value: listing.extra.nftData?.collection.name || '',
+                inline: true,
+              },
+              {
+                name: 'Symbol',
+                value: listing.extra.nftData?.symbol || '',
+                inline: true,
+              },
+              { name: '\u200B', value: '\u200B' },
+              {
+                name: 'Price',
+                value: listing.price.toString() + ' SOL',
+                inline: true,
+              },
+              {
+                name: 'Mint Address',
+                value: `[${truncate(
+                  listing.tokenMint,
+                )}](${`https://solscan.io/token/${listing.tokenMint}`})`,
+                inline: true,
+              },
+              {
+                name: 'Rarity',
+                value: `[${
+                  listing.rarity.howrare?.rank || 'unknown'
+                }](${`https://howrare.is/${listing.tokenMint}`})`,
+                inline: true,
+              },
+            ],
+            timestamp: Date.now(), // TODO update to real listing date based on transaction made (see tokenMint)
+          });
 
-        // Build message
-        const embedMessage = new MessageEmbed({
-          color: '#000000',
-          author: {
-            name: truncate(listing.seller),
-            iconURL: 'https://matrica.io/profile.png',
-            url: `https://matrica.io/wallet/${listing.seller}`,
-          },
-          footer: {
-            text: `Listed on Magic Eden`,
-            iconURL: 'https://www.magiceden.io/img/favicon.png',
-          },
-          title: `${listing.extra.nftData?.name}`,
-          url: `https://magiceden.io/item-details/${listing.tokenMint}`,
-          description: listing.extra.nftData?.description || '',
-          fields: [
-            {
-              name: 'Collection',
-              value: listing.extra.nftData?.collection.name || '',
-              inline: true,
-            },
-            {
-              name: 'Symbol',
-              value: listing.extra.nftData?.symbol || '',
-              inline: true,
-            },
-            { name: '\u200B', value: '\u200B' },
-            {
-              name: 'Price',
-              value: listing.price.toString() + ' SOL',
-              inline: true,
-            },
-            {
-              name: 'Mint Address',
-              value: `[${truncate(
-                listing.tokenMint,
-              )}](${`https://solscan.io/token/${listing.tokenMint}`})`,
-              inline: true,
-            },
-            {
-              name: 'Rarity',
-              value: `[${
-                listing.rarity.howrare?.rank || 'unknown'
-              }](${`https://howrare.is/${listing.tokenMint}`})`,
-              inline: true,
-            },
-          ],
-          timestamp: Date.now(), // TODO update to real listing date based on transaction made (see tokenMint)
-        });
+          // Set nft image
+          if (listing.extra.nftData != null) {
+            embedMessage.setImage(listing.extra.nftData.image);
+          }
 
-        // Set nft image
-        if (listing.extra.nftData != null) {
-          embedMessage.setImage(listing.extra.nftData.image);
+          // Send and track listing and listing message
+          console.log(`Send Message: ${listing.extra.nftData?.name}`, {
+            attributes: listing.extra.nftData?.attributes,
+          }); // TODO REMOVE
+          const message = await channel.send({
+            components: [actionRowMessage as any],
+            embeds: [embedMessage],
+          });
+          await channel.send('@everyone');
+          this.trackMessage(message.id, listing);
+          this.trackListingInChannel(listingHash);
         }
-
-        // Send and track listing and listing message
-        console.log(`Send Message: ${listing.extra.nftData?.name}`); // TODO REMOVE
-        const message = await channel.send({
-          components: [actionRowMessage as any],
-          embeds: [embedMessage],
-        });
-        this.trackMessage(message.id, listing);
-        this.trackListingInChannel(listingHash);
       }
-    }
 
-    this.isRunning = false;
+      this.isRunning = false;
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   private trackMessage(messageId: string, listing: CollectionListItem) {

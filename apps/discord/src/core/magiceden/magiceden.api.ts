@@ -3,6 +3,7 @@ import { Collection, CollectionListItem } from './magiceden.types';
 import solanaConfig from '../../config/solana.config';
 import { newConnection } from '../solana/connection';
 import { fetchNFTData } from '../solana/fetchNFTData';
+import { sleep } from '../utils/sleep';
 
 export class MagicEdenApi {
   private authKey?: string;
@@ -53,6 +54,7 @@ export class MagicEdenApi {
     // Fetch more detailed extra NFT Data
     const conn = newConnection();
     for (const item of data) {
+      await sleep(200);
       item.extra.nftData = await fetchNFTData(conn, item.tokenMint);
     }
 

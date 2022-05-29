@@ -51,3 +51,10 @@ Please follow the following instructions on how to set everything up.
 ```shell
 psql -U postgres
 ```
+
+## Errors
+
+### `import "reflect-metadata"; SyntaxError: Cannot use import statement outside a module`
+> https://stackoverflow.com/questions/69589501/nestjs-error-import-reflect-metadata-cannot-use-import-statement-outside-a-mod
+
+Check your imports, it should be `import {...} from 'typeorm'`. Avoid imports from `'typeorm/browser'`.

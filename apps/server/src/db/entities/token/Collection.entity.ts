@@ -25,9 +25,6 @@ export class Collection {
   @Column({ name: 'created_at', type: 'timestamp', nullable: true })
   createdAt?: Date;
 
-  @Column({ name: 'is_derived', type: 'boolean' })
-  isDerived: boolean;
-
   @Column({ name: 'discord_url', type: 'varchar', nullable: true })
   discordUrl?: string;
 

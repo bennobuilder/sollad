@@ -20,12 +20,16 @@ export async function getCollectionBySymbol(
 
     // Save Categories in database
     for (const categoryName of meCollectionMetadata.categories) {
-      const category = collectionCategoryRepository.create({
-        name: categoryName,
-      });
-      await collectionCategoryRepository.save(category);
-      categories.push(category);
+      if (categoryName != null) {
+        const category = collectionCategoryRepository.create({
+          name: categoryName,
+        });
+        await collectionCategoryRepository.save(category);
+        categories.push(category);
+      }
     }
+
+    console.log({ meCollectionMetadata });
 
     // Save Collection in database
     const newCollection = collectionRepository.create({
@@ -33,12 +37,13 @@ export async function getCollectionBySymbol(
       symbol,
       description: meCollectionMetadata.description,
       imageUrl: meCollectionMetadata.image,
-      createdAt: new Date(meCollectionMetadata.createdAt),
-      isDerived: meCollectionMetadata.isDerivative,
+      // createdAt:
+      //   meCollectionMetadata.createdAt != null
+      //     ? new Date(meCollectionMetadata.createdAt)
+      //     : undefined,
       discordUrl: meCollectionMetadata.discord,
       twitterUrl: meCollectionMetadata.twitter,
       websiteUrl: meCollectionMetadata.website,
-      totalItems: meCollectionMetadata.totalItems,
       categories: categories,
     });
     return await collectionRepository.save(newCollection);

@@ -7,7 +7,7 @@ import {
   OneToOne,
 } from 'typeorm';
 import { Collection } from './Collection.entity';
-import { JoinColumn, JoinTable } from 'typeorm/browser';
+import { JoinColumn, JoinTable } from 'typeorm';
 import { TokenAttribute } from './TokenAttribute.entity';
 import { TokenCreator } from './TokenCreator.entity';
 

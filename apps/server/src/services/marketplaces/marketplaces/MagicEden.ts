@@ -2,6 +2,7 @@ import Marketplace from '../Marketplace';
 import config from '../../../config';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import solanaConfig from '@sl/discord/dist/config/solana.config';
+import { createError } from '../../../middleware/error';
 
 const appConfig = config.app;
 
@@ -44,9 +45,13 @@ class MagicEden extends Marketplace {
   public async getCollection(
     symbol: string,
   ): Promise<CollectionResponse | null> {
-    const url = `${solanaConfig.magiceden.baseUrl}/collections/${symbol}`;
-    const response = await this.fetch<CollectionResponse>(url);
-    return response.data ?? null;
+    try {
+      const url = `${solanaConfig.magiceden.baseUrl}/collections/${symbol}`;
+      const response = await this.fetch<CollectionResponse>(url);
+      return response.data ?? null;
+    } catch (e) {
+      throw createError('jeff', 404);
+    }
   }
 
   public async getCollectionListings(
@@ -65,24 +70,24 @@ export default magicEden;
 
 type CollectionResponse = {
   symbol: string;
-  categories: string[];
-  createdAt: string;
-  derivativeDetails: {
-    originName: string;
-    originLink: string;
-  };
-  description: string;
-  discord: string;
-  enabledAttributesFilters: true;
-  image: string;
-  isDerivative: boolean;
   name: string;
-  totalItems: number;
+  description: string;
+  image: string;
   twitter: string;
+  discord: string;
   website: string;
-  updatedAt: string;
-  watchlistCount: number;
-  hasAllItems: boolean;
+  categories: string[];
+  floorPrices: number;
+  listedCount: number;
+  avgPrice24hr: number;
+  volumeAll: number;
+
+  // createdAt: string;
+  // enabledAttributesFilters: true;
+  // totalItems: number;
+  // updatedAt: string;
+  // watchlistCount: number;
+  // hasAllItems: boolean;
 };
 
 // Example Response (https://api-mainnet.magiceden.io/collections/metaworms)

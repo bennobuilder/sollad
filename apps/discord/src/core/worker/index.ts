@@ -5,7 +5,7 @@ import { dcClient } from '../../index';
 
 const listingWorkerThread = new WorkerThread(
   [
-    new ListingWorker('sea_shanties', dcClient), // TODO REMOVE
+    new ListingWorker('smart_sea_society', dcClient), // TODO REMOVE
   ],
   { interval: 5000 },
 );

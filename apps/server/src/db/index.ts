@@ -1,7 +1,6 @@
 import { EntityTarget } from 'typeorm/common/EntityTarget';
 import { getConnection, Repository } from 'typeorm';
 import { isConnectedToDB } from './setup';
-import { Collection } from './entities/token';
 
 export * from './setup';
 
@@ -17,7 +16,7 @@ const { getEntityRepository } = (() => {
   function getEntityRepository<Entity>(
     entityClass: EntityTarget<Entity>,
   ): Repository<Entity> {
-    if (isConnectedToDB) {
+    if (isConnectedToDB()) {
       let repository = repositories.get(entityClass);
       if (repository == null) {
         repository = getConnection().getRepository(entityClass);

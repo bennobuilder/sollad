@@ -3,7 +3,6 @@ import WOKCommands from 'wokcommands';
 import path from 'path';
 import config from './config';
 import * as fs from 'fs';
-import { DcClientHandler } from './core/discord';
 
 const eventsDir = path.join(__dirname, 'events');
 const commandsDir = path.join(__dirname, 'commands');

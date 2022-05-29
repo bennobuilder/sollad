@@ -44,5 +44,5 @@ export const { connectDB, isConnectedToDB } = (() => {
     }
   }
 
-  return { connectDB, isConnectedToDB: isConnectedToDB };
+  return { connectDB, isConnectedToDB: () => isConnectedToDB };
 })();

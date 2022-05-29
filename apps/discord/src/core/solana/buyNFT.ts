@@ -1,8 +1,10 @@
 import * as anchor from '@project-serum/anchor';
 import axios from 'axios';
 import { newConnection } from './connection';
-import solanaConfig from '../../config/solana.config';
 import { getUserWallet } from './getUserWallet';
+import config from '../../config';
+
+const solanaConfig = config.sol;
 
 export async function buyNFT(config: {
   auctionHouseAddress: string;
@@ -70,17 +72,20 @@ export async function buyNFT(config: {
   const tx = response.data.tx;
   if (tx != null) {
     try {
-      // For testing otherwise it gets expensive lol
-      const signature = await provider.simulate(
-        anchor.web3.Transaction.populate(anchor.web3.Message.from(tx.data)),
-      );
-
-      // Sends the MagicEden transaction, paid for and signed by the provider's wallet
-      // const signature = await provider.sendAndConfirm(
-      //   anchor.web3.Transaction.populate(
-      //     anchor.web3.Message.from(Buffer.from(tx.data)),
-      //   ),
-      // );
+      let signature: any;
+      if (solanaConfig.isDev) {
+        // For testing otherwise it gets expensive lol
+        signature = await provider.simulate(
+          anchor.web3.Transaction.populate(anchor.web3.Message.from(tx.data)),
+        );
+      } else {
+        // Sends the MagicEden transaction, paid for and signed by the provider's wallet
+        signature = await provider.sendAndConfirm(
+          anchor.web3.Transaction.populate(
+            anchor.web3.Message.from(Buffer.from(tx.data)),
+          ),
+        );
+      }
 
       console.log('Signature: ', signature);
     } catch (e) {

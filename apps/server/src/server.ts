@@ -3,7 +3,7 @@ import config from './config';
 import app from './app';
 import { connectDB } from './db';
 
-export const { httpServer } = await (async () => {
+(async () => {
   const PORT = config.app.port;
   const httpServer = createHttpServer();
 
@@ -28,8 +28,4 @@ export const { httpServer } = await (async () => {
 
   // Start HTTP server and listen for connections to the specified PORT
   httpServer.listen(PORT);
-
-  return { httpServer };
 })();
-
-export default httpServer;
