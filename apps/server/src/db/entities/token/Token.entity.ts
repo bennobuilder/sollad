@@ -1,4 +1,11 @@
-import { Column, Entity, ManyToMany, OneToMany, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { Collection } from './Collection.entity';
 import { JoinColumn, JoinTable } from 'typeorm/browser';
 import { TokenAttribute } from './TokenAttribute.entity';
@@ -24,12 +31,13 @@ export class Token {
   @Column({ name: 'category', type: 'varchar' })
   category: string;
 
-  // https://orkhan.gitbook.io/typeorm/docs/one-to-one-relations
-  @OneToOne(() => Collection)
+  // https://orkhan.gitbook.io/typeorm/docs/many-to-one-one-to-many-relations
+  @ManyToOne(() => Collection, (collection) => collection.tokens)
   @JoinColumn()
   collection: Collection;
 
-  @OneToMany(() => TokenAttribute, (attribute) => attribute.tokenMint)
+  // https://orkhan.gitbook.io/typeorm/docs/many-to-one-one-to-many-relations
+  @OneToMany(() => TokenAttribute, (attribute) => attribute.token)
   attributes: TokenAttribute[];
 
   // https://orkhan.gitbook.io/typeorm/docs/many-to-many-relations

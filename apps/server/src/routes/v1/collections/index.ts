@@ -3,7 +3,7 @@ import { getCollectionController } from './collections.controller';
 
 const router = Router();
 
-router.get('/', getCollectionController as any);
+router.get('/:symbol', getCollectionController as any);
 
 export * from './collections.types';
 export default router;

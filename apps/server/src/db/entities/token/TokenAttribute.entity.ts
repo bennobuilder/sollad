@@ -1,12 +1,14 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Token } from './Token.entity';
 
 @Entity({ name: 'token_attributes' })
 export class TokenAttribute {
   @PrimaryGeneratedColumn({ type: 'integer' })
   id: number;
 
-  @Column({ name: 'token_mint', type: 'integer' })
-  tokenMint: number;
+  // https://orkhan.gitbook.io/typeorm/docs/many-to-one-one-to-many-relations
+  @ManyToOne(() => Token, (token) => token.attributes)
+  token: Token;
 
   @Column({ name: 'trait_type', type: 'varchar' })
   traitType: string;

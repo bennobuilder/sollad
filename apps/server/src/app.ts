@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import config from './config';
 import createHttpError from 'http-errors';
 import routes from './routes';
+import { errorMiddleware } from './middleware/error';
 
 const appConfig = config.app;
 
@@ -48,11 +49,7 @@ const { app } = (() => {
 
   // Error Handler Middleware
   // https://expressjs.com/en/guide/error-handling.html
-  // @ts-ignore
-  app.use((err, req, res, next) => {
-    res.status(err.status || 500);
-    res.json({ error: err });
-  });
+  app.use(errorMiddleware);
 
   return { app };
 })();

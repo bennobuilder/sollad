@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { CollectionCategory } from './CollectionCategory.entity';
+import { Token } from './Token.entity';
 
 @Entity({ name: 'collections' })
 export class Collection {
@@ -39,6 +40,11 @@ export class Collection {
   @Column({ name: 'total_items', type: 'integer', nullable: true })
   totalItems?: number;
 
-  @OneToMany(() => CollectionCategory, (category) => category.collectionId)
+  // https://orkhan.gitbook.io/typeorm/docs/many-to-one-one-to-many-relations
+  @OneToMany(() => CollectionCategory, (category) => category.collection)
   categories: CollectionCategory[];
+
+  // https://orkhan.gitbook.io/typeorm/docs/many-to-one-one-to-many-relations
+  @OneToMany(() => Token, (token) => token.collection)
+  tokens: Token[];
 }
