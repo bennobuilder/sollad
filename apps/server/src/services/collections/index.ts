@@ -16,7 +16,7 @@ export async function getCollectionBySymbol(
   // Fetch Collection metadata and save it in the database
   const meCollectionMetadata = await magicEden.getCollection(symbol);
   if (meCollectionMetadata != null) {
-    const categories = [];
+    const categories: CollectionCategory[] = [];
 
     // Save Categories in database
     for (const categoryName of meCollectionMetadata.categories) {

@@ -4,6 +4,8 @@ This is a server lol
 ## 🚊 Routes
 See `swagger.yaml`
 
+---
+
 ## 🔨 Installation & Instructions
 Do you wish to use this code?
 Please follow the following instructions on how to set everything up.
@@ -27,6 +29,8 @@ Please follow the following instructions on how to set everything up.
       DB_NAME=sollad
       DB_SYNC=true
       ```
+
+---
 
 ## 👨‍🎓 Learnings
 

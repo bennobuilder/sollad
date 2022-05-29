@@ -1,14 +1,13 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@sl/config/tsconfig.base.json",
-  "include": [
-    "src",
-    "README.md",
-    "../../node_modules/@types/lodash/index.d.ts"
-  ],
   "compilerOptions": {
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "outDir": "./dist",
-    "strictPropertyInitialization": false // https://www.kindacode.com/snippet/typeorm-property-id-has-no-initializer-and-is-not-definitely-assigned-in-the-constructor/
-  }
+    "strictPropertyInitialization": false, // https://www.kindacode.com/snippet/typeorm-property-id-has-no-initializer-and-is-not-definitely-assigned-in-the-constructor/
+  },
+  "include": [
+    "src",
+    "README.md"
+  ]
 }
